@@ -20,6 +20,10 @@ enemy_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(enemy_timer, 2000)
 enemy_list_in_game = []
 
+bullet = pygame.image.load('images/bullet.png').convert_alpha()
+bullets = []
+bullets_left = 5
+
 walk_left = [
     pygame.image.load('images/player_left_1.png').convert_alpha(),
     pygame.image.load('images/player_left_2.png').convert_alpha(),
@@ -109,6 +113,21 @@ while running:
         background_x -= 2
         if background_x == -618:
             background_x = 0
+
+        if bullets:
+            for (i, el) in enumerate(bullets):
+                screen.blit(bullet, (el.x, el.y))
+                el.x += 4
+
+                if el.x > 630:
+                    bullets.pop(i)
+
+                if enemy_list_in_game:
+                    for (index, enemy_el) in enumerate(enemy_list_in_game):
+                        if el.colliderect(enemy_el):
+                            enemy_list_in_game.pop(index)
+                            bullets.pop(i)
+
     else:
         screen.fill((87, 88, 89))
         screen.blit(lose_label, (230, 100))
@@ -119,6 +138,7 @@ while running:
             gamePlay = True
             player_x = 150
             enemy_list_in_game.clear()
+            bullets.clear()
 
 
     pygame.display.update()
@@ -129,5 +149,8 @@ while running:
             pygame.quit()
         if event.type == enemy_timer:
             enemy_list_in_game.append(enemy.get_rect(topleft = (620, 250)))
+        if gamePlay and event.type == pygame.KEYUP and event.key == pygame.K_b and bullets_left >= 0:
+            bullets.append(bullet.get_rect(topleft = (player_x + 30, player_y + 10)))
+            bullets_left -= 1
 
     clock.tick(15)
